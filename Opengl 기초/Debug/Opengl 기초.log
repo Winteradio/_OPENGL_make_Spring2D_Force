@@ -1,6 +1,2 @@
-﻿  physics.cpp
-  coordinate_system.cpp
-C:\Users\겨울엔군고구마한잔\OneDrive - 한양대학교\바탕 화면\C++\Opengl_3D_Spring\Opengl 기초\coordinate_system.cpp(104,88): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\겨울엔군고구마한잔\OneDrive - 한양대학교\바탕 화면\C++\Opengl_3D_Spring\Opengl 기초\coordinate_system.cpp(116,14): error C2660: 'Physics::D_Force': 함수는 0개의 인수를 사용하지 않습니다.
-C:\Users\겨울엔군고구마한잔\OneDrive - 한양대학교\바탕 화면\C++\Opengl_3D_Spring\Opengl 기초\coordinate_system.cpp(51,8): message : 'Physics::D_Force' 선언을 참조하십시오.
-  코드를 생성하고 있습니다...
+﻿  coordinate_system.cpp
+  Opengl 기초.vcxproj -> C:\Users\겨울엔군고구마한잔\OneDrive - 한양대학교\바탕 화면\C++\Opengl_3D_Spring\Debug\Opengl 기초.exe

@@ -13,9 +13,9 @@
 
 using namespace std;
 
-int num = 4;
+int num = 7;
 
-float particle[4][4][3];
+float particle[7][3][3];
 /// <summary> 행렬 설명
 	/// 첫번째 [4] : 점들의 개수(1번점[0], 2번점[1], 3번점[2], 4번점[3])
 	/// 두번째 [4] : 특성의 개수(좌표값[0], 속도값[1], 힘값[2], 무게[3])
@@ -27,9 +27,10 @@ float T_Time = 0.0f;
 
 class Physics{
 public :
-	float G = -15.0f; // 중력 상수
-	float Ks = 2.0f; // 탄성계수
-	float Kd = 2.0f; // 항력 계수
+	float G = -0.0f; // 중력 상수
+	float Ks = 100.0f; // 탄성계수
+	float Kd = 20.0f; // 항력 계수
+	float Kr = 0.5f; // 반발계수
 	float mass = 10.0f; // 점들의 무게
 	float L = 0.5f; // 용수철 원래 길이
 	int Time =10; // Time_step
@@ -44,85 +45,89 @@ public :
 	}
 
 
-	float G_Force() { // 중력
-		return G;
+	void G_Force(int i) { // 중력
+		particle[i][2][1] += G*mass;
 	}
 
-	float D_Force() { // 항력
-		return -Kd * V;
+	void D_Force(int i) { // 항력
+		for (int j = 0; j <= 2; j++) {
+			particle[i][2][j] += -Kd * particle[i][1][j];
+		}
 	}
 
-	void S_Force() { // 탄성력
-		float X_Delta[2];
-		float V_Delta[2];
+	void S_Force(){// 탄성력
+		float X_Delta[3];
+		float V_Delta[3];
 		for (int i = 0; i < num-1; i++) {
-			for (int j = i +1 ; j < num ; j++) {
-				for (int t = 0; t <= 1; t++) {
+			for (int j = i+1; j < num ; j++) {
+				for (int t = 0; t <= 2; t++) {
 					X_Delta[t] = particle[i][0][t] - particle[j][0][t];
 					V_Delta[t] = particle[i][1][t] - particle[j][1][t];
 				}
-				for (int t = 0; t <= 1; t++) {
+				for (int t = 0; t <= 2; t++) {
 					particle[i][2][t] += -(Ks * (Distance(X_Delta) - L) + Kd * Dot(V_Delta, X_Delta) / Distance(X_Delta)) * X_Delta[t] / Distance(X_Delta);
-					particle[j][2][t] = -particle[i][2][t];
+					particle[j][2][t] += -particle[i][2][t];
 				}
 			}
 		}
 	}
 
 	void N_Force(int i,int j) { // 
-		particle[i][1][j] = -particle[i][1][j];
-		particle[i][2][j] = -particle[i][2][j];
-	}
-
-	void E_Velocity() { // Euler Velocity
-		for (int i = 0; i < num; i++) {
-			for (int j = 0; j <= 1; j++){
-				particle[i][1][j] += (time / 1000) * particle[i][2][j]/mass;
-			}
+		if (sqrt(pow(particle[i][0][j], 2)) >= 1.0) {
+			particle[i][1][j] = -Kr*particle[i][1][j];
 		}
 	}
+
+	void E_Velocity(int i) { // Euler Velocity
+			for (int j = 0; j <= 2; j++){
+				particle[i][1][j] += (time / 1000) * particle[i][2][j]/mass;
+			}
+	}
+};
+
+class MMath {
+public :
+
 };
 
 class Reset {
 public :
 	void reset() {
-		Physics P = Physics();
 		for (int i = 0; i < num; i++) {
 			for (int j = 0; j < 3; j++) {
-				if (j == 1) {
-					particle[i][2][j] = P.G;
-				}
 				particle[i][2][j] = 0;
 			}
 		}
 	}
 
 	void start() {
-		for (int i = 0; i < num; i++) {
+		particle[0][0][0] = 0.5;
+		particle[0][0][1] = 0.5;
+		for (int i = 1; i < num; i++) {
 			for (int j = 0; j <= 1; j++) {
-				for (int k = 0; k <= 1; k++) {
-					particle[i][j][k] = ((float)(rand() % GLUT_WINDOW_WIDTH) - GLUT_WINDOW_WIDTH*0.5) / GLUT_WINDOW_WIDTH;
-				}
+				particle[i][0][j] = ((float)(rand() % 100) - 50) / 100;
 			}
 		}
 	}
 };
 
+Physics P = Physics();
+Reset R = Reset();
+
 void Timer(int value) {
-	Physics P = Physics();
-	Reset R = Reset();
-	for (int i = 0; i < num ; i++) {
-		for (int j = 0; j <= 1; j++) {
-			P.D_Force(particle[i][1][j]);
-			P.S_Force();
-			if (sqrt(pow(particle[i][0][j], 2)) > 0.8) {
-				P.N_Force(i, j);
-			}
-			P.E_Velocity();
+	P.S_Force();
+	for (int i = 0; i < num; i++) {
+		P.G_Force(i);
+		P.D_Force(i);
+		P.E_Velocity(i);
+		for (int j = 0; j <= 2; j++) {
+			P.N_Force(i, j);
+		}
+		for (int j = 0; j <= 2; j++) {
 			particle[i][0][j] += particle[i][1][j] * P.time / 1000;
-			R.reset();
 		}
 	}
+	R.reset();
 	T_Time += P.time / 1000;
 	glutPostRedisplay();
 	glutTimerFunc(P.Time, Timer, 1);
@@ -155,10 +160,9 @@ void display() {
 }
 
 int main(int argc, char** argv) {
-	Reset R = Reset();
 	R.start();
 	glutInit(&argc, argv);
-	glutInitWindowSize(300, 500);
+	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(120, 50);
 	glutCreateWindow("OpenGL");
 	glutDisplayFunc(display);
