@@ -27,9 +27,9 @@ float T_Time = 0.0f;
 
 class Physics{
 public :
-	float G = -20.0f; // 중력 상수
-	float Ks = 100.0f; // 탄성계수
-	float Kd = 2.0f; // 항력 계수
+	float G = -10.0f; // 중력 상수
+	float Ks = 1000.0f; // 탄성계수
+	float Kd = 5.0f; // 항력 계수
 	float Kr = 0.5f; // 반발계수
 	float mass = 10.0f; // 점들의 무게
 	float L = 200.0f; // 용수철 원래 길이
@@ -152,13 +152,11 @@ public :
 	}
 
 	void start() { // 처음에 입자들의 좌표를 주는 함수
-		particle[0][0][0] = 50;
-		particle[0][0][1] = 50;
-		particle[1][0][0] = -50;
-		particle[1][0][1] = -50;
-		for (int i = 2; i < num; i++) {
+		for (int i = 0; i < num; i++) {
 			for (int j = 0; j <= 1; j++) {
-				particle[i][0][j] = ((float)(rand() % 100 - 50));
+				for (int k = 0; k <= 1; k++) {
+					particle[i][j][k] = ((float)(rand() % 100 - 50));
+				}
 			}
 		}
 	}
@@ -190,16 +188,10 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glPointSize(5);
-	glColor3f(1.0, 0.0, 0.0);
-	glBegin(GL_POINTS);
-	{
-		glVertex2f(particle[0][0][0] / ((float)(GLUT_INIT_WINDOW_WIDTH)/2), particle[0][0][1] / ((float)(GLUT_INIT_WINDOW_HEIGHT) / 2));
-	}
-	glEnd();
 	glColor3f(0.0, 1.0, 0.0);
 	glBegin(GL_POINTS);
 	{
-		for (int i = 1; i < num; i++) {
+		for (int i = 0; i < num; i++) {
 			glVertex2f(particle[i][0][0]/((float)(GLUT_INIT_WINDOW_WIDTH) / 2), particle[i][0][1]/ ((float)(GLUT_INIT_WINDOW_HEIGHT) / 2));
 		}
 	}
